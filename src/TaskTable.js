@@ -9,6 +9,7 @@ import Owner from './Owner.js';
 import ArtifactName from './ArtifactName.js';
 import Action from './Action.js';
 import TaskEstimate from './TaskEstimate.js';
+import TaskToDo from './TaskToDo.js';
 import StateView from './StateView.js';
 
 export default function TaskTable(props) {
@@ -49,6 +50,7 @@ export default function TaskTable(props) {
                     'Name',
                     'Owner',
                     'State',
+                    'ToDo',
                     'UserName',
                 ],
                 callback: function(records, _operation, _success) {
@@ -119,8 +121,11 @@ export default function TaskTable(props) {
                     <td>
                         <ArtifactName record={tt} />
                     </td>
-                    <td className="task-estimate">
-                        <TaskEstimate item={tt} onSave={onSave} />
+                    <td className="task-table-number">
+                        <TaskEstimate item={tt} />
+                    </td>
+                    <td className="task-table-number">
+                        <TaskToDo item={tt} />
                     </td>
                     <td>
                         <StateView item={tt} onSave={onSave} />
@@ -151,6 +156,7 @@ export default function TaskTable(props) {
                         <th>ID</th>
                         <th>Name</th>
                         <th>Est.</th>
+                        <th>ToDo</th>
                         <th>State</th>
                         <th>Blocked</th>
                         <th>Owner</th>

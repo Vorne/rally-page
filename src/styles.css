@@ -216,8 +216,13 @@ body {
     line-height: 2em;
 }
 
-.task-estimate {
+.task-table-number {
     text-align: right;
+}
+
+.bad-todo {
+    font-weight: bold;
+    color: red;
 }
 
 .small-link {
