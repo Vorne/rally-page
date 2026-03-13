@@ -218,8 +218,8 @@ export function storySort(left, right) {
         return left.data.FormattedID.localeCompare(right.data.FormattedID);
     }
 
-    const leftDone = left.data.ScheduleState === 'Completed' && !left.data.Blocked;
-    const rightDone = right.data.ScheduleState === 'Completed' && !right.data.Blocked;
+    const leftDone = left.data.ScheduleState === 'Completed' && !left.data.Blocked && left.data.c_Lifecycle === 'Implement';
+    const rightDone = right.data.ScheduleState === 'Completed' && !right.data.Blocked && right.data.c_Lifecycle === 'Implement';
 
     if (leftDone && !rightDone) {
         return -1;
@@ -240,6 +240,14 @@ export function storySort(left, right) {
     const ownerPriority = whoPriority(left.data.Owner) - whoPriority(right.data.Owner);
     if (ownerPriority !== 0) {
         return ownerPriority;
+    }
+
+    if (left.data.c_Lifecycle === 'Demo' && right.data.c_Lifecycle !== 'Demo') {
+        return -1;
+    }
+
+    if (left.data.c_Lifecycle !== 'Demo' && right.data.c_Lifecycle === 'Demo') {
+        return 1;
     }
 
     return left.data.FormattedID.localeCompare(right.data.FormattedID);

@@ -129,7 +129,7 @@ function MainElement(props) {
                 return true;
             }
 
-            if (rr.isUserStory() && rr.data.c_Lifecycle !== 'Demo') {
+            if (rr.isUserStory() && rr.data.c_Lifecycle !== 'Complete') {
                 return true;
             }
 
