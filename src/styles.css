@@ -413,6 +413,14 @@ td .blocked {
     color: white;
 }
 
+.box-letter:hover {
+    background: darkblue;
+}
+
+.box-letter.yes:hover {
+    background: darkblue;
+}
+
 .time-left {
     font-size: 32px;
     font-family: "Impact", monospace;

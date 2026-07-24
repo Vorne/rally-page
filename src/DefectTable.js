@@ -46,6 +46,12 @@ export default function DefectTable(props) {
                     thing = <span style={{ fontSize: '18px' }} > {String.fromCodePoint(129729)} </span>;
                 }
 
+                let prioritized = null;
+
+                if (rr.data.c_PrioritizedbySS) {
+                    prioritized = <span style={{ fontSize: '18px' }} > {String.fromCodePoint(0x2714)} </span>;
+                }
+
                 if (rr.canHaveTasks() && rr.data.Tasks.Count > 0) {
                     className += ' defect-with-tasks';
                 }
@@ -93,6 +99,9 @@ export default function DefectTable(props) {
                         </td>
                         <td>
                             {rr.data.Priority}
+                        </td>
+                        <td>
+                            {prioritized}
                         </td>
                         <td>
                             <StateView item={rr} onSave={onSave} />
@@ -166,6 +175,7 @@ export default function DefectTable(props) {
                         <th>Name</th>
                         <th>Visible</th>
                         <th>Priority</th>
+                        <th>S/S</th>
                         <th>State</th>
                         <th>Blocked</th>
                         <th>Owner</th>

@@ -34,6 +34,7 @@ function MainElement(props) {
                     'BlockedReason',
                     'c_IsCustomer',
                     'c_Lifecycle',
+                    'c_PrioritizedbySS',
                     'Connections',
                     'CreationDate',
                     'Discussion',
@@ -65,6 +66,7 @@ function MainElement(props) {
                 ],
                 listeners: {
                     load: function(store, _records) {
+                        console.warn('JAKE', _records);
                         setRecords(_records);
                     }
                 }
