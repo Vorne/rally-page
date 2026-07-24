@@ -4,6 +4,7 @@
 
 import './styles.css';
 import TimeLeft from './TimeLeft.js';
+import RefreshButton from './RefreshButton.js';
 import DefectSummary from './DefectSummary.js';
 import DefectTable from './DefectTable.js';
 import UserStoryTable from './UserStoryTable.js';
@@ -24,6 +25,8 @@ function MainElement(props) {
     });
 
     const [records, setRecords] = React.useState([]);
+
+    const [refreshNonce, setRefreshNonce] = React.useState(0);
 
     React.useEffect(() => {
         if (iteration.iterationValue !== '') {
@@ -66,14 +69,12 @@ function MainElement(props) {
                 ],
                 listeners: {
                     load: function(store, _records) {
-                        console.warn('JAKE', _records);
                         setRecords(_records);
                     }
                 }
             });
         }
-
-    }, [iteration, setRecords]);
+    }, [iteration, setRecords, refreshNonce]);
 
     const onSave = (savedRecs) => {
         savedRecs.store.reload({
@@ -81,6 +82,10 @@ function MainElement(props) {
                 setRecords(_records);
             }
         });
+    };
+
+    const onRefresh = () => {
+        setRefreshNonce((nonce) => nonce + 1);
     };
 
     getUpdate = (iterationName, iterationValue, raw) => {
@@ -146,6 +151,7 @@ function MainElement(props) {
         <div className={`main-container ${userName}`}>
             <TimeLeft date={data?.EndDate} />
             <DefectSummary records={records} />
+            <RefreshButton onClick={onRefresh} />
             <DefectTable records={defectRecords} user={user} onSave={onSave} />
             <UserStoryTable records={storyRecords} user={user} onSave={onSave}/>
         </div>

@@ -426,3 +426,28 @@ td .blocked {
     font-family: "Impact", monospace;
     margin: 0;
 }
+
+.refresh-button-container {
+    position: sticky;
+    top: 10px;
+    margin: 0 !important;
+}
+
+.refresh-button {
+    width: 50px;
+    background-color: lightblue;
+    border: 0;
+    border-radius: 50px;
+    font-size: 20px;
+}
+
+.refresh-button:hover {
+    background-color: darkblue;
+    color: white;
+}
+
+
+.refresh-button:active {
+    background-color: blue;
+    color: white;
+}
