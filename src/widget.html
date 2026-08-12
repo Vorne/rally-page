@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+        <title>Stand Up</title>
+
+        <link href='https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700' rel='stylesheet' type='text/css'>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+        <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+        <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+        <base target="_parent">
+
+        <script type="text/javascript">
+            // Rally replaces everything between these two markers with the real context object
+            // when the widget renders. Do not remove or reformat the marker comments, and keep the
+            // placeholder below so the bundle still loads outside of Rally.
+            // $RallyContext:Begin
+            const $RallyContext = {
+                WidgetName: 'Stand Up'
+            };
+            // $RallyContext:End
+        </script>
+    </head>
+
+    <body>
+        <div id="root" class="widget-root">Loading...</div>
+
+        <!-- used as a filter to create the parchment look on old defects -->
+        <svg width="0" height="0" style="position:absolute">
+            <filter id="wavy2">
+                <feTurbulence x="0" y="0" baseFrequency="0.02" numOctaves="5" seed="1" />
+                <feDisplacementMap in="SourceGraphic" scale="20" />
+            </filter>
+        </svg>
+    </body>
+</html>

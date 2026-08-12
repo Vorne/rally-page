@@ -14,7 +14,10 @@ npm install
 npm run watch
 cd deploy
 python -m SimpleHTTPServer
+python3 -m http.server 8000
 ```
+Note: You can also use `python3 -m http.server 8000`
+
 At this point you can point your browser at `http://{IP}:8000/`
 
 ### Finished

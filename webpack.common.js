@@ -27,19 +27,6 @@ module.exports = (env, argv) => {
         plugins: [
             new webpack.ProgressPlugin(),
             new HtmlWebpackPlugin({
-                filename: 'standup.html',
-                chunks: ['standup'],
-                template: path.resolve(__dirname, 'src/index.html'),
-                // use a different script tag to load rally script depending on if we're running
-                // locally (dev) or within the rally website
-                custom: isProduction
-                    ? '<script type="text/javascript" src="/apps/2.1/sdk.js"></script>'
-                    : '<script type="text/javascript" src="https://rally1.rallydev.com/apps/2.1/sdk.js"></script>',
-                inlineSource: '.(js|css)$',
-                // needed to npm run watch reloads properly
-                cache: false,
-            }),
-            new HtmlWebpackPlugin({
                 filename: 'demoplan.html',
                 chunks: ['demoplan'],
                 template: path.resolve(__dirname, 'src/index.html'),
@@ -65,8 +52,14 @@ module.exports = (env, argv) => {
                 // needed to npm run watch reloads properly
                 cache: false,
             }),
-            // this plugin provides the inlineSource option to HtmlWebpackPlugin which inlines all
-            // css and js into a single html file
+            new HtmlWebpackPlugin({
+                filename: 'standup.html',
+                chunks: ['standup'],
+                template: path.resolve(__dirname, 'src/widget.html'),
+                inlineSource: '.(js|css)$',
+                // needed to npm run watch reloads properly
+                cache: false,
+            }),
             new HtmlInlineScriptPlugin(),
             new ESLintPlugin({
                 configType: 'flat',
@@ -88,6 +81,7 @@ module.exports = (env, argv) => {
             minimize: true,
             minimizer: [
                 new HtmlMinimizerPlugin({
+                    exclude: /standup\.html$/,
                     minimizerOptions: {
                         collapseWhitespace: true,
                         caseSensitive: false,
@@ -95,6 +89,24 @@ module.exports = (env, argv) => {
                         keepClosingSlash: false,
                         minifyCSS: true,
                         minifyJS: true,
+                        removeComments: false,
+                        removeScriptTypeAttributes: false,
+                        removeStyleLinkTypeAttributes: false,
+                    }
+                }),
+                new HtmlMinimizerPlugin({
+                    test: /standup\.html$/,
+                    minimizerOptions: {
+                        collapseWhitespace: true,
+                        caseSensitive: false,
+                        conservativeCollapse: true,
+                        keepClosingSlash: false,
+                        minifyCSS: true,
+                        minifyJS: {
+                            format: {
+                                comments: /\$RallyContext:(Begin|End)\s*$/,
+                            },
+                        },
                         removeComments: false,
                         removeScriptTypeAttributes: false,
                         removeStyleLinkTypeAttributes: false,
