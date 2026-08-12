@@ -33,9 +33,11 @@ export default function ArtifactName(props) {
     const parts = record.data.Name.matchAll(regex);
     let name = [];
     let idx = 0;
+    let noMoreTags = false;
+
     for (const part of parts) {
         const pp = part[0];
-        if (pp[0] === '[') {
+        if (pp[0] === '[' && !noMoreTags) {
             // remove first and last character and give it some styling
             let cleanName = pp.slice(1, -1);
 
@@ -43,9 +45,11 @@ export default function ArtifactName(props) {
                 <HashedColor key={idx} text={cleanName} />
             );
         }
-        else {
+        else if (pp.trim().length > 0) {
+            noMoreTags = true;
+
             name.push(
-                <span key={idx}> {pp} </span>
+                <span key={idx}>{pp.trim()}</span>
             );
         }
         idx += 1;

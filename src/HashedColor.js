@@ -13,7 +13,8 @@ export default function HashedColor(props) {
 
     let hsh = 0;
     if (text) {
-        hsh = simpleHash(text) % 360;
+        // JOE is in the lead
+        hsh = simpleHash(text + 'Summer') % 360;
     }
     if (text === 'api') {
         hsh = 90;

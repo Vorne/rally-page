@@ -1,6 +1,7 @@
 /*global React */
 
 import ReleaseName from './ReleaseName.js';
+import HashedColor from './HashedColor.js';
 
 export default function DefectSummary(props) {
 
@@ -44,7 +45,7 @@ export default function DefectSummary(props) {
     const renderTotal = () => {
         return (
             <div key="total" className="defect-total-container">
-                <div> Total </div>
+                <div> Total <HashedColor text="All" lightness='50%' /> </div>
                 <div className="big-defect"> {total} </div>
             </div>
         );

@@ -8,7 +8,12 @@ Color Palette I generated from somewhere
 
 body {
     font-size: 10pt;
-    font-family: sans-serif;
+    font-family: "Noto Sans", Helvetica, Arial;
+}
+
+a, a:visited {
+    text-decoration: none;
+    color: #337ec6;
 }
 
 .me {
@@ -132,7 +137,7 @@ body {
 .story-display {
     display: flex;
     flex-direction: column;
-    gap: 2em;
+    gap: 1em;
     align-items: stretch;
     flex-wrap: wrap;
     align-content: flex-start;
@@ -177,10 +182,9 @@ body {
 .story-id {
     background-color: rgb(102, 146, 7);
     color: white;
-    padding-right: 3px;
-    padding-left: 6px;
     margin-right: 6px;
     border-radius: 9px;
+    padding: 0.25em 0.3em;
 }
 
 .release-name {
@@ -200,7 +204,8 @@ body {
 .pill {
     color: white;
     border-radius: .35em;
-    padding: 0 .2em;
+    display: inline-block;
+    padding: 0.25em 0.3em;
 }
 
 .story-estimate {
@@ -363,7 +368,7 @@ td .blocked {
     flex-grow: 2;
 }
 
-.artifact-name .artifact-name-text span {
+.artifact-name .artifact-name-text span.pill {
     margin-right: 4px;
 }
 
@@ -381,7 +386,7 @@ td .blocked {
     text-wrap: nowrap;
     background: lightblue;
     border-radius: 0.5em;
-    padding: 2px 4px;
+    padding: 0.25em 0.3em;
     border: darkblue;
     border-width: 1px;
     border-style: solid;
@@ -405,7 +410,6 @@ td .blocked {
     border-radius: 0.3em;
     text-align: center;
     width: 1.3em;
-    cursor: pointer;
 }
 
 .box-letter.yes {
@@ -413,11 +417,11 @@ td .blocked {
     color: white;
 }
 
-.box-letter:hover {
-    background: darkblue;
+.box-letter.clickable {
+    cursor: pointer;
 }
 
-.box-letter.yes:hover {
+.box-letter.clickable:hover {
     background: darkblue;
 }
 
