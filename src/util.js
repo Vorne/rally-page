@@ -309,7 +309,10 @@ export function getBlockedHtml(item) {
 }
 
 export function getLink(model) {
-    return Rally.nav.Manager.getDetailUrl(model);
+    if (typeof Rally !== 'undefined' && Rally.nav?.Manager) {
+        return Rally.nav.Manager.getDetailUrl(model);
+    }
+    return model.getDetailUrl();
 }
 
 export function isSupport(artifact) {

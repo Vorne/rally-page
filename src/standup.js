@@ -1,99 +1,141 @@
-/*global isProduction, React, ReactDOM, Ext */
+/*global React, ReactDOM */
 
-// cSpell: ignore iterationstatus afterrender hierarchicalrequirement rallyiterationcombobox wsapi xtype
+// Stand Up dashboard as a Rally Custom View widget.
 
 import './styles.css';
+import './widget.css';
 import TimeLeft from './TimeLeft.js';
 import RefreshButton from './RefreshButton.js';
 import DefectSummary from './DefectSummary.js';
 import DefectTable from './DefectTable.js';
 import UserStoryTable from './UserStoryTable.js';
+import IterationPicker from './IterationPicker.js';
 import { who } from './util.js';
+import {
+    getContext,
+    getUser,
+    getViewFilterIteration,
+} from './rally/context.js';
+import { makeRecords } from './rally/record.js';
+import {
+    and,
+    queryArtifacts,
+    queryIterations,
+    where,
+} from './rally/wsapi.js';
 
-let getUpdate = null;
-let extId = null;
+const ARTIFACT_FIELDS = [
+    'Blocked',
+    'BlockedReason',
+    'c_IsCustomer',
+    'c_Lifecycle',
+    'c_PrioritizedbySS',
+    'Connections',
+    'CreationDate',
+    'Discussion',
+    'DisplayName',
+    'FormattedID',
+    'Name',
+    'ObjectID',
+    'Owner',
+    'PlanEstimate',
+    'Priority',
+    'Release',
+    'ScheduleState',
+    'Severity',
+    'State',
+    'Tags',
+    'Tasks',
+    'UserName',
+];
 
-function MainElement(props) {
-    const {
-        user,
-    } = props;
+const ITERATION_FIELDS = ['EndDate', 'Name', 'ObjectID', 'StartDate'];
 
-    const [iteration, setIteration] = React.useState({
-        iterationName: '',
-        iterationValue: '',
-        raw: null,
-    });
+const ITERATION_HISTORY_DAYS = 365;
 
+function isoDaysAgo(days) {
+    return new Date(Date.now() - (days * 24 * 60 * 60 * 1000)).toISOString();
+}
+
+function currentIteration(list) {
+    const now = new Date();
+
+    const active = list.find((it) => new Date(it.StartDate) <= now && new Date(it.EndDate) >= now);
+    if (active) {
+        return active;
+    }
+
+    return list.find((it) => new Date(it.EndDate) < now) || list[0] || null;
+}
+
+function MainElement() {
+    const user = getUser() || {};
+
+    const [iteration, setIteration] = React.useState(getViewFilterIteration());
+    const [iterationOptions, setIterationOptions] = React.useState([]);
     const [records, setRecords] = React.useState([]);
-
+    const [error, setError] = React.useState(null);
     const [refreshNonce, setRefreshNonce] = React.useState(0);
 
-    React.useEffect(() => {
-        if (iteration.iterationValue !== '') {
-            Ext.create('Rally.data.wsapi.artifact.Store', {
-                models: ['UserStory', 'Defect'],
-                fetch: [
-                    'Blocked',
-                    'BlockedReason',
-                    'c_IsCustomer',
-                    'c_Lifecycle',
-                    'c_PrioritizedbySS',
-                    'Connections',
-                    'CreationDate',
-                    'Discussion',
-                    'DisplayName',
-                    'FormattedID',
-                    'Name',
-                    'Owner',
-                    'PlanEstimate',
-                    'Priority',
-                    'Release',
-                    'ScheduleState',
-                    'Severity',
-                    'State',
-                    'Tags',
-                    'Tasks',
-                    'UserName',
-                ],
-                autoLoad: true,
-                filters: [
-                    {
-                        property: 'Iteration',
-                        value: iteration.iterationValue,
-                    },
-                    {
-                        property: 'ScheduleState',
-                        operator: '!=',
-                        value: 'Accepted',
-                    }
-                ],
-                listeners: {
-                    load: function(store, _records) {
-                        setRecords(_records);
-                    }
-                }
-            });
-        }
-    }, [iteration, setRecords, refreshNonce]);
+    const viewFilterIteration = getViewFilterIteration();
+    const usingViewFilter = Boolean(viewFilterIteration);
 
-    const onSave = (savedRecs) => {
-        savedRecs.store.reload({
-            load: function(store, _records) {
-                setRecords(_records);
-            }
-        });
-    };
+    React.useEffect(() => {
+        if (usingViewFilter) {
+            setIteration(viewFilterIteration);
+            return;
+        }
+
+        queryIterations({
+            exactProject: true,
+            fetchFields: ITERATION_FIELDS,
+            order: 'StartDate DESC,EndDate DESC',
+            queryString: where('EndDate', '>=', isoDaysAgo(ITERATION_HISTORY_DAYS)),
+        })
+            .then((results) => {
+                setIterationOptions(results);
+                setIteration((current) => current || currentIteration(results));
+            })
+            .catch((err) => {
+                console.error('failed to load iterations', err);
+                setError(err.message);
+            });
+    }, [usingViewFilter, viewFilterIteration, refreshNonce]);
+
+    React.useEffect(() => {
+        if (!iteration?._ref) {
+            return;
+        }
+
+        setError(null);
+
+        queryArtifacts({
+            fetchFields: ARTIFACT_FIELDS,
+            queryString: and(
+                where('Iteration', '=', iteration._ref),
+                where('ScheduleState', '!=', 'Accepted'),
+            ),
+        })
+            .then((results) => {
+                setRecords(makeRecords(results));
+            })
+            .catch((err) => {
+                console.error('failed to load artifacts', err);
+                setError(err.message);
+            });
+    }, [iteration, refreshNonce]);
 
     const onRefresh = () => {
         setRefreshNonce((nonce) => nonce + 1);
     };
 
-    getUpdate = (iterationName, iterationValue, raw) => {
-        setIteration({
-            iterationName,
-            iterationValue,
-            raw,
-        });
+    const onSave = (_record, _operation, success, err) => {
+        setError(success ? null : `Save failed: ${err?.message || 'unknown error'}`);
+        setRefreshNonce((nonce) => nonce + 1);
+    };
+
+    const onPickIteration = (ref) => {
+        setIteration(iterationOptions.find((it) => it._ref === ref) || null);
     };
 
     const defectRecords = React.useMemo(() => {
@@ -144,72 +186,67 @@ function MainElement(props) {
         });
     }, [records]);
 
-    const data = iteration?.raw?.data;
+    const renderError = () => {
+        if (!error) {
+            return null;
+        }
+        return <div className="widget-error"> {error} </div>;
+    };
+
+    const renderUserWarning = () => {
+        if (user._ref) {
+            return null;
+        }
+        return (
+            <div className="widget-error">
+                No Rally user in the widget context: taking ownership of work will not save.
+            </div>
+        );
+    };
+
+    const renderPicker = () => {
+        if (usingViewFilter) {
+            return null;
+        }
+        return (
+            <IterationPicker
+                iterations={iterationOptions}
+                value={iteration?._ref}
+                onChange={onPickIteration}
+            />
+        );
+    };
 
     const userName = who(user);
     return (
         <div className={`main-container ${userName}`}>
-            <TimeLeft date={data?.EndDate} />
+            {renderUserWarning()}
+            {renderError()}
+            {renderPicker()}
+            <TimeLeft date={iteration?.EndDate} />
             <DefectSummary records={records} />
             <RefreshButton onClick={onRefresh} />
             <DefectTable records={defectRecords} user={user} onSave={onSave} />
-            <UserStoryTable records={storyRecords} user={user} onSave={onSave}/>
+            <UserStoryTable records={storyRecords} user={user} onSave={onSave} />
         </div>
     );
 }
 
-export function afterrender(app) {
-    if (!isProduction) {
-        // for some reason in development react only works if it is attached in the afterrender
-        let root = document.getElementById(extId);
-        root.style.overflow = 'visible';
-        const user = app.getContext().getUser();
-        const reactRoot = ReactDOM.createRoot(root);
-        reactRoot.render(<MainElement app={app} user={user} />);
+function mount() {
+    const root = document.getElementById('root');
+
+    if (!getContext()) {
+        root.textContent = 'No Rally context available. This page only runs as a Rally Custom HTML widget.';
+        return;
     }
+
+    root.textContent = '';
+    ReactDOM.createRoot(root).render(<MainElement />);
 }
 
-export function onLoad(app) {
-    const iterUpdate = (iterationName, iterationValue, xx) => {
-        if (getUpdate) {
-            let iteration;
-            xx.store?.data?.items.some((ii) => {
-                if (ii.data._ref === iterationValue) {
-                    iteration = ii;
-                    return true;
-                }
-                return false;
-            });
-
-            getUpdate(iterationName, iterationValue, iteration);
-        }
-    };
-
-    app.add({
-        xtype: 'rallyiterationcombobox',
-        listeners: {
-            ready: (i) => { iterUpdate(i.rawValue, i.value, i); },
-            select: (i) => { iterUpdate(i.rawValue, i.value, i); },
-        }
-    });
-
-    const extPanel = app.add({
-        xtype: 'panel',
-        height: 1000,
-        layout: 'fit',
-        autoScroll: true,
-        items: [
-            { html: '<div id="root"> </div>', }
-        ]
-    });
-
-    extId = extPanel.getId();
-    if (isProduction) {
-        // for some reason in rally (i.e. production) react only works if is attached right away
-        let root = document.getElementById(extId);
-        root.style.overflow = 'visible';
-        const user = app.getContext().getUser();
-        const reactRoot = ReactDOM.createRoot(root);
-        reactRoot.render(<MainElement app={app} user={user} />);
-    }
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mount);
+}
+else {
+    mount();
 }

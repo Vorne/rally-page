@@ -46,7 +46,6 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-webpack-plugin": "^4.2.0",
     "globals": "^15.9.0",
-    "html-minimizer-webpack-plugin": "^5.0.2",
-    "rally-sdk2-test-utils": "0.1.2"
+    "html-minimizer-webpack-plugin": "^5.0.2"  
   }
 }
