@@ -104,7 +104,8 @@ function hostSecurityToken() {
                 return token;
             }
         }
-        catch (_err) {
+        catch {
+            // do nothing
         }
     }
 
