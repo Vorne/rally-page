@@ -1,6 +1,7 @@
 /*global React */
 
 import { isSupport } from './util.js';
+import Confetti from './Confetti.js';
 
 const RES_ADDITIONAL = '[support] Additional Artifact Created';
 const RES_NO_CHANGE = '[support] Solved Without Change';
@@ -16,6 +17,14 @@ export default function Action(props) {
     } = props;
 
     const isMine = artifact.data?.Owner && artifact.data.Owner._refObjectUUID === user._refObjectUUID;
+
+    const [burst, setBurst] = React.useState(0);
+    const [burstActive, setBurstActive] = React.useState(false);
+
+    const celebrate = React.useCallback(() => {
+        setBurst((b) => (b + 1));
+        setBurstActive(true);
+    }, []);
 
     const save = React.useCallback(() => {
         artifact.save({
@@ -49,8 +58,11 @@ export default function Action(props) {
         }
 
         artifact.set('Blocked', false);
+
+        celebrate();
+
         save();
-    }, [artifact, save]);
+    }, [artifact, save, celebrate]);
 
     const backBurner = () => {
         if (artifact.isTask()) {
@@ -239,10 +251,17 @@ export default function Action(props) {
         );
     }
 
+    const onBurstAnimationEnd = React.useCallback(() => {
+        setBurstActive(false);
+    }, []);
+
     return (
-        <div className="action">
-            {buttons}
-        </div>
+        <>
+            <div className="action">
+                {buttons}
+            </div>
+            {burstActive && <Confetti key={burst} onAnimationEnd={onBurstAnimationEnd} />}
+        </>
     );
 
 }
