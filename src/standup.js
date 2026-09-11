@@ -227,7 +227,7 @@ function MainElement() {
             <DefectSummary records={records} />
             <RefreshButton onClick={onRefresh} />
             <DefectTable records={defectRecords} user={user} onSave={onSave} />
-            <UserStoryTable records={storyRecords} user={user} onSave={onSave} />
+            <UserStoryTable records={storyRecords} user={user} onSave={onSave} refreshNonce={refreshNonce} />
         </div>
     );
 }

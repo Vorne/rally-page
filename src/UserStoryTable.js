@@ -19,6 +19,7 @@ export default function UserStoryTable(props) {
         onSave,
         records,
         user,
+        refreshNonce,
     } = props;
 
     const renderRecords = () => {
@@ -58,7 +59,7 @@ export default function UserStoryTable(props) {
                                 <Owner artifact={rr.data} user={user} />
                             </span>
                         </div>
-                        <TaskTable model={rr} user={user} onSave={onSave} />
+                        <TaskTable model={rr} user={user} onSave={onSave} refreshNonce={refreshNonce} />
                     </div>
                 );
             });

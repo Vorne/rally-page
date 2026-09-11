@@ -18,12 +18,21 @@ export default function TaskTable(props) {
         model,
         user,
         onSave,
+        refreshNonce,
     } = props;
 
     const [taskResponse, setTaskResponse] = React.useState({
         state: 'init',
         records: [],
     });
+
+    // Gross, bad workaround to trick the other useEffect into re-running
+    React.useEffect(() => {
+        setTaskResponse((currentTaskResponse) => ({
+            ...currentTaskResponse,
+            state: 'init',
+        }));
+    }, [refreshNonce]);
 
     const [activeBlockOnTask, setActiveBlockOnTask] = React.useState(false);
 
@@ -33,10 +42,10 @@ export default function TaskTable(props) {
 
     React.useEffect(() => {
         if (taskResponse.state === 'init' && model.canHaveTasks() && model.data.Tasks.Count > 0) {
-            setTaskResponse({
-                ...taskResponse,
+            setTaskResponse((currentTaskResponse) => ({
+                ...currentTaskResponse,
                 state: 'pending',
-            });
+            }));
             model.getCollection('Tasks').load({
                 fetch: [
                     'Blocked',
