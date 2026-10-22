@@ -122,6 +122,13 @@ export default function TaskTable(props) {
                 return <a href={getLink(tt)} > {tt.data.FormattedID} </a>;
             };
 
+            const justBlock = () => {
+                tt.set('Blocked', true);
+                tt.save({
+                    callback: onSave,
+                });
+            };
+
             return (
                 <tr className={className} key={tt.data.FormattedID} >
                     <td>
@@ -139,7 +146,7 @@ export default function TaskTable(props) {
                     <td>
                         <StateView item={tt} onSave={onSave} />
                     </td>
-                    <td>
+                    <td onDoubleClick={justBlock}>
                         {getBlockedHtml(tt.data)}
                     </td>
                     <td>
